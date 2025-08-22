@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Accounts Management</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-plus"></i> Add New Account
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_account') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Instagram Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul"></i> Saved Accounts ({{ accounts|length }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if accounts %}
+                    <div class="list-group">
+                        {% for account in accounts %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="col-md-6">
+                                    <strong>{{ account.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">Password: {{ '*' * account.password|length }}</small>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <a href="{{ url_for('test_account', index=loop.index0) }}" 
+                                       class="btn btn-success btn-sm me-1">
+                                        <i class="bi bi-check-circle"></i> Test
+                                    </a>
+                                    <a href="{{ url_for('remove_account', index=loop.index0) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to remove this account?')">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-person-x fs-1"></i>
+                        <p class="mt-2">No accounts added yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

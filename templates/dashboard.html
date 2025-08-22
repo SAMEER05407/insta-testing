@@ -1,0 +1,130 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Dashboard</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-person-circle fs-1 text-primary"></i>
+                <h4 class="card-title">{{ total_accounts }}</h4>
+                <p class="card-text text-muted">Accounts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-camera-reels fs-1 text-success"></i>
+                <h4 class="card-title">{{ total_reels }}</h4>
+                <p class="card-text text-muted">Reels</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-chat-quote fs-1 text-info"></i>
+                <h4 class="card-title">{{ total_captions }}</h4>
+                <p class="card-text text-muted">Captions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                {% if is_posting %}
+                    <i class="bi bi-play-circle-fill fs-1 text-success"></i>
+                    <h4 class="card-title">
+                        <span class="badge bg-success status-badge">Running</span>
+                    </h4>
+                {% else %}
+                    <i class="bi bi-pause-circle fs-1 text-secondary"></i>
+                    <h4 class="card-title">
+                        <span class="badge bg-secondary status-badge">Stopped</span>
+                    </h4>
+                {% endif %}
+                <p class="card-text text-muted">Status</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear-fill"></i> Controls
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2">
+                    {% if not is_posting %}
+                        <form method="POST" action="{{ url_for('start_posting') }}" class="d-inline">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-play-fill"></i> Start Posting
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('stop_posting') }}" class="d-inline">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-stop-fill"></i> Stop Posting
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-terminal"></i> Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="log-container" id="logContainer">
+                    {% if logs %}
+                        {% for log in logs %}
+                            <div>{{ log }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted">No activity yet</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-refresh logs every 5 seconds
+    setInterval(function() {
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                // Update status if needed
+                if (data.recent_logs.length > 0) {
+                    const logContainer = document.getElementById('logContainer');
+                    const newLogs = data.recent_logs.map(log => `<div>${log}</div>`).join('');
+                    logContainer.innerHTML = newLogs;
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            })
+            .catch(error => console.error('Error fetching status:', error));
+    }, 5000);
+</script>
+{% endblock %}
